@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WheelTurn", "Assembly-CSharp-firstpass.csproj", "{36B06EF5-9B55-1360-B797-9153FAF2FC98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WheelTurn", "Assembly-CSharp.csproj", "{6976CFB2-2C8E-1ACF-00D1-6357092CF872}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WheelTurn", "Assembly-CSharp-Editor.csproj", "{FC5C3B50-690A-34B3-6E89-9D6C5DA109CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36B06EF5-9B55-1360-B797-9153FAF2FC98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36B06EF5-9B55-1360-B797-9153FAF2FC98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36B06EF5-9B55-1360-B797-9153FAF2FC98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36B06EF5-9B55-1360-B797-9153FAF2FC98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6976CFB2-2C8E-1ACF-00D1-6357092CF872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6976CFB2-2C8E-1ACF-00D1-6357092CF872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6976CFB2-2C8E-1ACF-00D1-6357092CF872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6976CFB2-2C8E-1ACF-00D1-6357092CF872}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC5C3B50-690A-34B3-6E89-9D6C5DA109CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC5C3B50-690A-34B3-6E89-9D6C5DA109CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC5C3B50-690A-34B3-6E89-9D6C5DA109CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC5C3B50-690A-34B3-6E89-9D6C5DA109CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
