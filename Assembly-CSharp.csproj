@@ -51,7 +51,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\WheelTurn\Common\JsonData.cs" />
      <Compile Include="Assets\WheelTurn\Common\Main.cs" />
+     <Compile Include="Assets\WheelTurn\Map\Map.cs" />
+     <Compile Include="Assets\WheelTurn\UI\ErrorQuitPanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\LoadingMapPanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\MatchingPanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\ScrollController.cs" />
+     <Compile Include="Assets\WheelTurn\UI\ScrollItem.cs" />
+     <Compile Include="Assets\WheelTurn\UI\ServerPanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\SettingPanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\TimeText.cs" />
+     <Compile Include="Assets\WheelTurn\UI\TipsText.cs" />
+     <Compile Include="Assets\WheelTurn\UI\TitlePanel.cs" />
+     <Compile Include="Assets\WheelTurn\UI\VersionText.cs" />
+     <Compile Include="Assets\WheelTurn\UI\WTCanvas.cs" />
+     <Compile Include="Assets\WheelTurn\UI\WTPanel.cs" />
+     <Compile Include="Assets\WheelTurn\Unicycle\CameraMover.cs" />
+     <Compile Include="Assets\WheelTurn\Unicycle\Unicycle.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderRGB.shader" />

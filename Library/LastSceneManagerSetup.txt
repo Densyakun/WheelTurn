@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/WheelTurn.unity
+- path: Assets/WheelTurn/Common/WheelTurn.unity
   isLoaded: 1
   isActive: 1
