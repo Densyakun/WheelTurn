@@ -18,7 +18,7 @@ public class Main : NetworkBehaviour {
 	//TODO マッチングサーバーからIP及びポート番号が送られる
 	private const int SERVER_PORT_MIN = 50100;
 	private const int SERVER_PORT_MAX = 50199;
-	private const int MAX_PLAYERS = 8;
+	public const int MAX_PLAYERS = 8;
 	private const float WWWTimeOut = 3.0f;
 	private const bool LOCAL_MODE = true;
 
@@ -30,8 +30,13 @@ public class Main : NetworkBehaviour {
 	public const float DEFAULT_SE_VOLUME = 1f;
 
 	public static Main main;
-	public static Map playingmap { get; private set; }
 	public static bool SERVER_MODE = false;
+	public enum GameState
+	{
+		WAITING, RACING, ENDED
+	}
+	public static GameState state = GameState.ENDED;
+	public static IDictionary<int, Unicycle> _spawned = new Dictionary<int, Unicycle> (MAX_PLAYERS);
 
 	private static bool firstStart = false;
 	public static bool isFirstStart {
@@ -60,35 +65,27 @@ public class Main : NetworkBehaviour {
 
 	void Start () {
 		/*if (isSetupped) {
-			WTCanvas.titlePanel.show (true);
+			title ();
 		} else {
 			//TODO 初期設定
 		}*/
 
-		WTCanvas.titlePanel.show (true);
+		title ();
 	}
 
 	void Update () {
 		if (SERVER_MODE)
 			return;
 		
-		if (playingmap != null) {
+		/*if (playingmap != null) {
 			if (bgmSource.isPlaying)
 				bgmSource.Stop ();
 			
 		} else if (!bgmSource.isPlaying) {
 			bgmSource.clip = titleClips [UnityEngine.Random.Range (0, titleClips.Length)];
 			bgmSource.Play ();
-		}
+		}*/
 	}
-
-	/*public override void OnServerConnect (NetworkConnection conn) {
-		main.StartCoroutine (sendHosting ());
-	}
-
-	public override void OnServerDisconnect (NetworkConnection conn) {
-		main.StartCoroutine (sendHosting ());
-	}*/
 
 	public static void quit () {
 		#if UNITY_EDITOR
@@ -108,38 +105,54 @@ public class Main : NetworkBehaviour {
 		PlayerPrefs.SetFloat (KEY_SE_VOLUME, main.seSource.volume = seVolume);
 	}
 
+
+
+	public static void title () {
+		Map.closeMap ();
+
+		WTCanvas.serverPanel.show (false);
+		WTCanvas.titlePanel.show (true);
+	}
+
+	//サーバー操作
+
+	public static bool startServer () {
+		if (LOCAL_MODE) {
+			NetworkManager.singleton.networkPort = SERVER_PORT_MIN;
+			NetworkManager.singleton.StartServer ();
+		} else {
+			for (int a = SERVER_PORT_MIN; a <= SERVER_PORT_MAX; a++) {
+				NetworkManager.singleton.networkPort = a;
+				//TODO サーバーが開けない理由がポートを使用中でない場合負担がかかるため対策をする
+				if (NetworkManager.singleton.StartServer ())
+					break;
+			}
+		}
+
+		if (NetworkManager.singleton.isNetworkActive)
+			return true;
+		else
+			errorQuit ("ポートが埋まっているか、サーバーが開けませんでした");
+		
+		return false;
+	}
+
 	public static void setServerMode (bool serverMode) {
 		if (serverMode == Main.SERVER_MODE)
 			return;
 		
 		if (Main.SERVER_MODE = serverMode) {
-			NetworkManager.singleton.maxConnections = MAX_PLAYERS;
-
-			if (LOCAL_MODE) {
-				NetworkManager.singleton.networkPort = SERVER_PORT_MIN;
-				NetworkManager.singleton.StartServer ();
-			} else {
-				for (int a = SERVER_PORT_MIN; a <= SERVER_PORT_MAX; a++) {
-					NetworkManager.singleton.networkPort = a;
-					//TODO サーバーが開けない理由がポートを使用中でない場合負担がかかるため対策をする
-					if (NetworkManager.singleton.StartServer ())
-						break;
-				}
-			}
-
-			if (NetworkManager.singleton.isNetworkActive) {
-				main.StartCoroutine (sendHosting ());
+			if (startServer ()) {
 				WTCanvas.titlePanel.show (false);
 				WTCanvas.serverPanel.show (true);
-			} else
-				errorQuit ("ポートが埋まっているか、サーバーが開けませんでした");
+			}
 		} else {
-			NetworkManager.singleton.StopServer ();
-
 			WTCanvas.serverPanel.show (false);
-			WTCanvas.titlePanel.show (true);
+			NetworkManager.singleton.StopServer ();
 		}
 	}
+
+	//マッチングサーバー接続
 
 	public static IEnumerator matchPost (WWWForm form) {
 		WWW result = new WWW (MATCHING_SERVER_ADDR, form);
@@ -204,7 +217,6 @@ public class Main : NetworkBehaviour {
 			yield return main.StartCoroutine (coroutine);
 			if (coroutine is WWW) {
 				WWW result = (WWW)coroutine.Current;
-				print (result.text);
 				if (!string.IsNullOrEmpty (result.error)) {
 					errorQuit (result.error);
 					yield break;
@@ -222,36 +234,66 @@ public class Main : NetworkBehaviour {
 		return null;
 	}
 
-	public static void openMap (string mapname) {
-		if (playingmap != null)
-			closeMap ();
-
-		WTCanvas.titlePanel.show (false);
-		WTCanvas.loadingMapPanel.show (true);
-
-		Map map = getMap (mapname);
-		if (map == null) {
-			errorQuit ("could not load map.");
-		} else {
-			playingmap = map;
-			WTCanvas.loadingMapPanel.show (false);
-
-			print (DateTime.Now + " マップを開きました: " + map.mapname);
-		}
+	public static Map openMap () {
+		return Map.openMap (main.maps [UnityEngine.Random.Range (0, main.maps.Length)]);
 	}
 
-	public static void closeMap () {
-		if (playingmap != null) {
-			DestroyUnicycleEntities ();
 
-			Destroy (playingmap.gameObject);
-			playingmap = null;
-		}
+
+	public static void waitGame () {
+		state = GameState.WAITING;
+		print ("waitGame");
+
+		Main.openMap ();
+		main.StartCoroutine (sendHosting ());
 	}
 
-	public static void DestroyUnicycleEntities () {
-		foreach (Unicycle u in GameObject.FindObjectsOfType<Unicycle> ()) {
-			Destroy (u.gameObject);
-		}
+	public static void startRace () {
+		state = GameState.RACING;
+		print ("startRace");
+
+		main.StartCoroutine (sendHosting ());
+	}
+
+	public static void endRace () {
+		state = GameState.ENDED;
+		print ("endRace");
+
+		NetworkManager.singleton.StopServer ();
+		startServer ();
+	}
+
+	public static int getSpawnPointNum () {
+		int n = 0;
+
+		foreach (int a in _spawned.Keys)
+			if (n == a)
+				n++;
+
+		return n;
+	}
+
+	public static void spawned (Unicycle unicycle) {
+		_spawned [unicycle.spawnnum] = unicycle;
+		print ("プレイヤーがスポーンしました: " + unicycle.name + " n: " + unicycle.spawnnum);
+
+		//connectionsが1つ多いので注意
+		if (NetworkServer.connections.Count - 1 == NetworkManager.singleton.maxConnections)
+			Main.startRace ();
+	}
+
+	public static void quitted (Unicycle unicycle) {
+		_spawned.Remove (unicycle.spawnnum);
+		print ("プレイヤーが退出しました: " + unicycle.name);
+	}
+
+	public static Unicycle getJoinedUnicycle (int spawnnum) {
+		return _spawned [spawnnum];
+	}
+
+
+
+	public static void checkPointPass (CheckPoint cp, Unicycle unicycle) {
+		print ("Pass CP: " + cp + " Unicycle: " + unicycle);
 	}
 }

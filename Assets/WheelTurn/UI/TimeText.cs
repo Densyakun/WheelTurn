@@ -9,8 +9,9 @@ public class TimeText : MonoBehaviour {
 	}
 
 	void Update () {
-		if (Main.playingmap == null) {
-			text.text = "---";
+		if (Map.playingmap == null) {
+			//text.text = "---";
+			text.text = "TimeText.csを修正して下さい";
 		} else {
 			//TODO ラップタイム等
 			/*text.text = "現在時刻: " + (Main.playingmap.getDays () + 1) + "日目 " +

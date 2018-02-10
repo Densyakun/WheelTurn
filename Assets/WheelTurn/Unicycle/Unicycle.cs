@@ -6,41 +6,57 @@ using UnityEngine.Networking;
 public class Unicycle : NetworkBehaviour {
 	public static Unicycle master;
 
-	public WheelCollider wheel;
+	public WheelCollider wheelCollider;
+	public GameObject wheel;
+
+	[SyncVar]
 	public string name; //TODO プレイヤー名(仮)
+	[SyncVar]
+	public int spawnnum;
 
 	void Start () {
-		if (!isLocalPlayer)
-			return;
-
-		master = this;
-		CameraMover.cameramover.setTarget (transform);
-		//TODO
-		transform.position = Main.playingmap.spawnPoints[0];
+		Start0 ();
+		Start1 ();
 	}
 
-	void Update () {
+	[Client]
+	private void Start0 () {
 		if (!isLocalPlayer)
 			return;
-			
+		
+		master = this;
+		CameraMover.cameramover.setTarget (transform);
+	}
+
+	[Server]
+	private void Start1 () {
+		spawnnum = Main.getSpawnPointNum ();
+		RpcInit (Map.playingmap.mapname, spawnnum);
+		Main.spawned (this);
+	}
+
+	[Client]
+	void Update () {
+		wheel.transform.eulerAngles = new Vector3 (wheel.transform.eulerAngles.x + wheelCollider.rpm * 360f * Time.deltaTime / 60f, wheel.transform.eulerAngles.y, wheel.transform.eulerAngles.z);
+
 		if (Input.GetKey (KeyCode.W)) {
-			wheel.motorTorque = 250;
+			wheelCollider.motorTorque = 250;
 		} else if (Input.GetKey (KeyCode.S)) {
-			wheel.motorTorque = -250;
+			wheelCollider.motorTorque = -250;
 		} else {
-			wheel.motorTorque = 0;
+			wheelCollider.motorTorque = 0;
 		}
 		if (Input.GetKey (KeyCode.Space)) {
-			wheel.brakeTorque = 500;
+			wheelCollider.brakeTorque = 500;
 		} else {
-			wheel.brakeTorque = 0;
+			wheelCollider.brakeTorque = 0;
 		}
 		Rigidbody rb = GetComponent<Rigidbody> ();
 		if (rb != null) {
 			if (Input.GetKey (KeyCode.A)) {
-				rb.AddTorque (new Vector3 (0, -1, 0) * (wheel.rpm < 0 ? Mathf.Min (-500, wheel.rpm) : Mathf.Max (500, wheel.rpm)));
+				rb.AddTorque (new Vector3 (0, -1, 0) * (wheelCollider.rpm < 0 ? Mathf.Min (-500, wheelCollider.rpm) : Mathf.Max (500, wheelCollider.rpm)));
 			} else if (Input.GetKey (KeyCode.D)) {
-				rb.AddTorque (new Vector3 (0, 1, 0) * (wheel.rpm < 0 ? Mathf.Min (-500, wheel.rpm) : Mathf.Max (500, wheel.rpm)));
+				rb.AddTorque (new Vector3 (0, 1, 0) * (wheelCollider.rpm < 0 ? Mathf.Min (-500, wheelCollider.rpm) : Mathf.Max (500, wheelCollider.rpm)));
 			}
 		}
 		//steering.transform.position = wheel.transform.position;
@@ -84,6 +100,14 @@ public class Unicycle : NetworkBehaviour {
 			}
 		}*/
 	}
+
+	[ClientRpc]
+	public void RpcInit (string mapname, int spawnnum) {
+		Map map = Map.openMap (Main.getMap (mapname));
+		transform.position = map.getPlayerSpawnPointPosition (spawnnum);
+		transform.eulerAngles = map.getPlayerSpawnPointEuler (spawnnum);
+	}
+
 
 
 	//public GameObject steering;

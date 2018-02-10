@@ -13,6 +13,7 @@ public class TitlePanel : WTPanel {
 	}
 
 	public void joinGame () {
+		show (false);
 		Main.main.StartCoroutine (Main.joinGame ());
 	}
 }
